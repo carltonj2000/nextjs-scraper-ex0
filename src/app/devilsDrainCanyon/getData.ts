@@ -1,16 +1,17 @@
 "use server";
-import { inputFromE } from "@/app/devilsDrainCanyon/page";
 import { readFile } from "fs/promises";
 import { parse } from "node-html-parser";
 import puppeteer from "puppeteer";
+import { dataSrc, inputFromE } from "./dataSrc";
 
-export type dataT = {
-  inputFrom: inputFromE;
+export type dataSourceT = {
   filename: Array<string>;
   url: Array<string>;
-  content: Array<string>;
-  first: any;
   idx: number;
+  inputFrom: inputFromE;
+};
+export type dataT = dataSourceT & {
+  groupWps: Array<groupWpT>;
 };
 
 export type wgs84T = {
@@ -20,9 +21,9 @@ export type wgs84T = {
 
 export type wpT = {
   name: string;
-  wgs84: wgs84T;
-  elevation: number;
-  details: string;
+  wgs84?: wgs84T;
+  elevation?: string;
+  details?: string;
 };
 
 export type groupWpT = {
@@ -32,38 +33,45 @@ export type groupWpT = {
 };
 
 export async function SomeData(): Promise<dataT> {
-  const idx = 0;
-  const filename = [
-    "/media/renderws/carltonData/cj2023/hikingEtc/carlVinegaroonDv/VinegaroonCanyonDeathValley.html",
-    "/media/renderws/carltonData/cj2023/hikingEtc/gabyDevilsDrainCanyon/lake-mead_devils-drain.html",
-  ];
-  const url = [
-    "https://bluugnome.com/cyn_route/dv/dv_vinegaroon/dv_vinegaroon.aspx",
-    "https://www.bluugnome.com/cyn_route/lake-mead/lake-mead_devils-drain/lake-mead_devils-drain.aspx",
-  ];
+  const content = dataSrc.inputFrom
+    ? await parseSite(dataSrc.filename[dataSrc.idx])
+    : await fetch(dataSrc.url[dataSrc.idx]);
 
-  const inputFrom: inputFromE = inputFromE.file;
+  let groupWps: Array<groupWpT> = [];
 
-  const content = inputFrom
-    ? await parseSite(filename[idx])
-    : await fetch(url[idx]);
-
-  let first: Array<groupWpT> = [];
   content.forEach((item, idx) => {
     if (idx % 2 === 1) {
       const second = parse(item).querySelectorAll("td ol li");
-      console.log({ second });
-      first[(idx - 1) / 2].wps.push(second.innerHTML);
+      const parentArr = groupWps[(idx - 1) / 2].wps;
+      second.map((wpEle) => {
+        const items = wpEle.textContent.split("\n").map((i) => i.trim());
+        const itemsReq = 5;
+        let wp: wpT | null = null;
+        if (items.length < itemsReq) {
+          wp = {
+            name: `Error!!! Need ${itemsReq} items but see ${items.length}`,
+            details: items.join(","),
+          };
+        } else {
+          wp = {
+            name: items[0],
+            elevation: items[3].split(":")[1].trim(),
+            wgs84: { lat: items[1].split(":")[1].trim(), lng: items[2] },
+            details: items[items.length - 1],
+          };
+        }
+        parentArr.push(wp);
+      });
     } else {
       const [name, details] = parse(item)
         .querySelector("strong")!
         .innerHTML.split("-")
         .map((i) => i.trim());
       const groupWp: groupWpT = { name, details, wps: [] };
-      first.push(groupWp);
+      groupWps.push(groupWp);
     }
   });
-  return { inputFrom, filename, url, idx, content, first };
+  return { ...dataSrc, groupWps };
 }
 
 async function parseSite(filename: string): Promise<Array<string>> {

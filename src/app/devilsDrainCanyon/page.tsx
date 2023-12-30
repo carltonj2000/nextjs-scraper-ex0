@@ -1,13 +1,9 @@
 import DataSource from "@/app/devilsDrainCanyon/dataSource";
+import Export from "@/app/devilsDrainCanyon/export";
 import { SomeData } from "@/app/devilsDrainCanyon/getData";
 import { ReactNode } from "react";
 // import { loadFile } from "./actions";
 // import GetFile from "./getFile";
-
-export enum inputFromE {
-  file = "file",
-  url = "url",
-}
 
 export function SpanL({
   children,
@@ -22,7 +18,7 @@ export function SpanL({
 
 export default async function Home() {
   const dataIn = await SomeData();
-  const { content, first, ...data } = dataIn;
+  const { groupWps, ...data } = dataIn;
   return (
     <main className="flex flex-col">
       <h1 className="text-3xl font-bold">Devil&apos;s Drain Canyon</h1>
@@ -36,8 +32,9 @@ export default async function Home() {
           a <SpanL file={true}>file</SpanL>.
         </p>
         <DataSource data={data} />
+        <Export groupWps={groupWps} />
         <code>
-          <pre>{JSON.stringify(first, null, 2)}</pre>
+          <pre>{JSON.stringify(groupWps, null, 2)}</pre>
         </code>
         {/* <GetFile loadFile={loadFile} /> */}
       </div>

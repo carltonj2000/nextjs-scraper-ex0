@@ -1,7 +1,8 @@
 "use client";
-import { dataT } from "./getData";
-import { SpanL, inputFromE } from "./page";
-export default function DataSource({ data }: { data: dataT }) {
+import { inputFromE } from "@/app/devilsDrainCanyon/dataSrc";
+import { dataSourceT } from "./getData";
+import { SpanL } from "./page";
+export default function DataSource({ data }: { data: dataSourceT }) {
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     console.log({ value: e.target.value });
   };
