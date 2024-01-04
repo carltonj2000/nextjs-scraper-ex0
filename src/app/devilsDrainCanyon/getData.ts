@@ -2,40 +2,13 @@
 import { readFile } from "fs/promises";
 import { parse } from "node-html-parser";
 import puppeteer from "puppeteer";
-import { dataSrc, inputFromE } from "./dataSrc";
-
-export type dataSourceT = {
-  filename: Array<string>;
-  url: Array<string>;
-  idx: number;
-  inputFrom: inputFromE;
-};
-export type dataT = dataSourceT & {
-  groupWps: Array<groupWpT>;
-};
-
-export type wgs84T = {
-  lat: string;
-  lng: string;
-};
-
-export type wpT = {
-  name: string;
-  wgs84?: wgs84T;
-  elevation?: string;
-  details?: string;
-};
-
-export type groupWpT = {
-  name: string;
-  details: string;
-  wps: Array<wpT>;
-};
+import { dataSrc, dataT, groupWpT, wpT } from "./dataSrc";
 
 export async function SomeData(): Promise<dataT> {
-  const content = dataSrc.inputFrom
-    ? await parseSite(dataSrc.filename[dataSrc.idx])
-    : await fetch(dataSrc.url[dataSrc.idx]);
+  const content = await parseSite(dataSrc.inputs[dataSrc.idx].filename);
+  // const content = dataSrc.inputFrom
+  //   ? await parseSite(dataSrc.inputs[dataSrc.idx].filename)
+  //   : await fetch(dataSrc.inputs[dataSrc.idx].url);
 
   let groupWps: Array<groupWpT> = [];
 

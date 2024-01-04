@@ -1,6 +1,6 @@
 "use client";
 import { inputFromE } from "@/app/devilsDrainCanyon/dataSrc";
-import { dataSourceT } from "./getData";
+import { dataSourceT } from "./dataSrc";
 import { SpanL } from "./page";
 export default function DataSource({ data }: { data: dataSourceT }) {
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -12,19 +12,19 @@ export default function DataSource({ data }: { data: dataSourceT }) {
         <input
           type="checkbox"
           checked={data.inputFrom === inputFromE.file}
-          value={data.filename[data.idx]}
+          value={data.inputs[data.idx].filename}
           onChange={onChange}
         />
-        <SpanL file={true}>File: {data.filename[data.idx]}</SpanL>
+        <SpanL file={true}>File: {data.inputs[data.idx].filename}</SpanL>
       </div>
       <div className="flex gap-1">
         <input
           type="checkbox"
           checked={(data.inputFrom as inputFromE) === inputFromE.url}
-          value={data.url[data.idx]}
+          value={data.inputs[data.idx].url}
           onChange={onChange}
         />
-        <SpanL>URL: {data.url[data.idx]}</SpanL>
+        <SpanL>URL: {data.inputs[data.idx].url}</SpanL>
       </div>
     </div>
   );
